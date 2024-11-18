@@ -92,4 +92,30 @@ module.exports = {
       res.status(500).json({ message: "Server error", error: err.message });
     }
   },
+  logout: async (req, res) => {
+    try {
+      const schema = Joi.object().keys({
+        deviceToken: Joi.string().required().allow(""),
+      });
+
+      const { error, value } = schema.validate(req.body);
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+
+      let logoutDetail = {
+        deviceToken: value.deviceToken,
+      };
+
+      await Models.userModel.update(logoutDetail, {
+        where: { id: req.user.id },
+      });
+
+      res.json({ message: "User logout successfully!" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  }
+
 }
